@@ -1,16 +1,22 @@
-- name : Configure Docker on EC2 Instances
-  hosts : 172.31.45.42   #installing on prometheus sever 
+---
+- name: Configure Docker on EC2 Instances
+  hosts: 172.31.45.42   # installing on prometheus server
   become: true
-  connection : ssh
-  tasks : 
-  - name: updating apt
-    command : sudo apt-get update
+  tasks:
+    - name: Update apt repo and cache
+      apt:
+        update_cache: yes
 
-  - name : Install Docker
-    command : sudo apt-get install -y docker.io
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
 
-  - name : Start Docker Service
-    command : sudo systemctl start docker
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
 
-  - name: Deploy Docker Container
-    command: docker run -itd -p 8081:8081 pradip698/banking-finance-project:v1
+    - name: Deploy Docker container
+      shell: docker run -d --name banking -p 8081:8081 pradip698/banking-finance-project:v1
